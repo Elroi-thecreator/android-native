@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ta" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>தினசரி தமிழ் வேத வசனம் & ஜெப நினைவூட்டல் | Android Native App</title>
+  <meta name="description" content="Android Native Material 3 Tamil Bible Verse & Prayer Reminder App with Jetpack Compose UI." />
+  <meta name="theme-color" content="#1e293b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Manifest Link -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='28' fill='%236366f1'/%3E%3Cpath d='M50 20v60M30 40h40' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tiro+Tamil:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            tamil: ['"Noto Sans Tamil"', 'sans-serif'],
+            serifTamil: ['"Tiro Tamil"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans Tamil"', 'sans-serif'],
+          },
+          colors: {
+            primary: { 500: '#6366f1', 600: '#4f46e5' },
+            androidBg: '#0b0f19',
+            androidCard: '#151c2c',
+            androidBorder: '#26334d'
+          },
+          boxShadow: {
+            'android': '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 12px #1e293b, 0 0 0 14px #334155'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #030712;
+    }
+    .tamil-quote {
+      font-family: 'Tiro Tamil', 'Noto Sans Tamil', serif;
+      line-height: 1.85;
+    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 9999px; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-0 sm:p-4 text-slate-100">
+
+  <!-- Top App Mode Bar (Allows user to toggle Android Device Frame vs Full Screen) -->
+  <div class="hidden sm:flex items-center space-x-3 mb-3 bg-slate-900/90 border border-slate-800 px-4 py-2 rounded-2xl text-xs shadow-md">
+    <div class="flex items-center space-x-1.5 text-emerald-400 font-semibold">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>Android Native App (Jetpack Compose / Material 3)</span>
+    </div>
+    <span class="text-slate-600">|</span>
+    <button onclick="toggleDeviceFrame()" id="btn-frame-toggle" class="text-indigo-400 hover:underline font-medium">
+      📱 Switch to Full Screen View
+    </button>
+  </div>
+
+  <!-- ==================== ANDROID DEVICE FRAME CONTAINER ==================== -->
+  <div id="android-device-shell" class="w-full sm:max-w-[420px] sm:h-[880px] bg-slate-950 sm:shadow-android sm:rounded-[50px] sm:border-[10px] sm:border-slate-800 flex flex-col overflow-hidden relative transition-all duration-300">
+    
+    <!-- Android Status Bar (Camera Punch-hole & Icons) -->
+    <div id="android-status-bar" class="w-full h-8 bg-slate-950 px-6 flex items-center justify-between text-xs text-slate-300 shrink-0 select-none z-50">
+      <span id="status-time" class="font-semibold text-[11px]">06:30</span>
+      <!-- Camera punch hole -->
+      <div class="w-4 h-4 rounded-full bg-black border border-slate-800 absolute left-1/2 transform -translate-x-1/2 top-2"></div>
+      <div class="flex items-center space-x-2 text-[10px]">
+        <span>5G</span>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19h15.3l-1.62-1.39C19.26 16.07 20 14.12 20 12c0-4.97-4.03-9-9-9z"/></svg>
+        <span class="font-bold">98%</span>
+      </div>
+    </div>
+
+    <!-- Android App Bar (Material 3 Top App Bar) -->
+    <header class="sticky top-0 z-40 bg-slate-900/95 border-b border-slate-800/80 px-4 py-3 flex items-center justify-between shrink-0">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-sm shadow-indigo-500/30">
+          ✝
+        </div>
+        <div>
+          <h1 class="font-bold text-sm tracking-tight text-white leading-tight">
+            தமிழ் வேத வசனம்
+          </h1>
+          <span class="text-[10px] text-indigo-400 font-medium">Jetpack Compose • Android v1.0</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1.5">
+        <button onclick="toggleLanguage()" id="btn-lang" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all">
+          தமிழ்/EN
+        </button>
+        <button onclick="openFavoritesModal()" class="relative p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">
+          <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span id="fav-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white font-bold text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Body (Scrollable Content) -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+
+      <!-- Topic Filter Chips -->
+      <div class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar">
+        <button onclick="setTopic('all')" class="topic-chip active px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0 shadow-sm" data-topic="all">✨ அனைத்து</button>
+        <button onclick="setTopic('peace')" class="topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700" data-topic="peace">🕊️ சமாதானம்</button>
+        <button onclick="setTopic('trust')" class="topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700" data-topic="trust">⚓ நம்பிக்கை</button>
+        <button onclick="setTopic('courage')" class="topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700" data-topic="courage">🦁 தைரியம்</button>
+        <button onclick="setTopic('hope')" class="topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700" data-topic="hope">🌅 எதிர்காலம்</button>
+        <button onclick="setTopic('prayer')" class="topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700" data-topic="prayer">🙏 ஜெபம்</button>
+      </div>
+
+      <!-- Material 3 Verse Card -->
+      <div class="relative bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl overflow-hidden">
+        <div class="absolute -right-16 -top-16 w-40 h-40 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="flex items-center justify-between mb-3">
+          <span id="verse-topic-tag" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-950 text-indigo-300 border border-indigo-800/60">சமாதானம்</span>
+          <button onclick="getRandomVerse()" class="text-xs text-indigo-400 hover:underline flex items-center space-x-1">
+            <span>🔄 புதிய வசனம்</span>
+          </button>
+        </div>
+
+        <p id="verse-text" class="tamil-quote text-base sm:text-lg font-medium text-slate-100 mb-4">
+          சமாதானத்தை உங்களுக்கு வைத்துப்போகிறேன், என்னுடைய சமாதானத்தையே உங்களுக்குக் கொடுக்கிறேன்...
+        </p>
+
+        <p id="verse-trans" class="text-xs text-slate-400 italic mb-4">
+          "Peace I leave with you; my peace I give you..."
+        </p>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+          <h3 id="verse-ref" class="font-bold text-sm text-indigo-400">யோவான் 14:27</h3>
+          <div class="flex items-center space-x-1.5">
+            <button onclick="copyVerse()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center space-x-1" title="Copy">
+              <span>📋 நகலெடு</span>
+            </button>
+            <button onclick="toggleFav()" id="fav-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300" title="Favorite">
+              <span>🤍 விருப்பம்</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prayer Timer Card (Material 3 Card) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-lg">⏳</span>
+            <h3 class="font-bold text-sm text-slate-100">அமைதி ஜெப நேரம் (Timer)</h3>
+          </div>
+          <span id="timer-display" class="font-mono font-bold text-lg text-indigo-400">03:00</span>
+        </div>
+
+        <!-- Timer progress bar -->
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div id="timer-bar" class="bg-indigo-500 h-full w-full transition-all duration-300"></div>
+        </div>
+
+        <div class="flex items-center justify-center space-x-3 pt-1">
+          <button onclick="startTimer()" id="timer-toggle-btn" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md">
+            தொடங்கு (Start)
+          </button>
+          <button onclick="resetTimer()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
+            மீட்டமை (Reset)
+          </button>
+          <button onclick="testChime()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-amber-300 text-xs">
+            🔔 மணி
+          </button>
+        </div>
+      </div>
+
+      <!-- Daily Reminder Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-lg">⏰</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-100">தினசரி நினைவூட்டல்</h3>
+            <p id="reminder-status-label" class="text-[11px] text-slate-400">காலை 06:30 மணி</p>
+          </div>
+        </div>
+        <input type="time" id="reminder-time" value="06:30" onchange="updateReminderTime(this.value)" class="bg-slate-800 text-white text-xs font-mono px-3 py-1.5 rounded-xl border border-slate-700" />
+      </div>
+
+    </main>
+
+    <!-- Android Bottom Navigation Bar -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900 border-t border-slate-800 px-6 flex items-center justify-around z-40 select-none">
+      <button onclick="switchTab('verse')" class="flex flex-col items-center text-indigo-400 space-y-0.5">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h14v-8h3L12 3z"/></svg>
+        <span class="text-[10px] font-semibold">வசனம்</span>
+      </button>
+      <button onclick="switchTab('timer')" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[10px] font-semibold">ஜெபம்</span>
+      </button>
+      <button onclick="openFavoritesModal()" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="text-[10px] font-semibold">விருப்பம்</span>
+      </button>
+    </nav>
+
+    <!-- Android Gesture Home Bar Indicator at bottom -->
+    <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-slate-600 rounded-full pointer-events-none z-50"></div>
+
+  </div>
+
+  <!-- Favorites Modal -->
+  <div id="favorites-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-base text-white">❤️ பிடித்த வசனங்கள் (Favorites)</h3>
+        <button onclick="closeFavoritesModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+      <div id="favorites-list" class="flex-1 overflow-y-auto py-3 space-y-3">
+        <!-- Injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-slate-800 border border-indigo-500 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-50">
+    நகலெடுக்கப்பட்டது
+  </div>
+
+  <script>
+    const verses = [
+      { id: '1', topic: 'peace', refTa: 'யோவான் 14:27', refEn: 'John 14:27', textTa: 'சமாதானத்தை உங்களுக்கு வைத்துப்போகிறேன், என்னுடைய சமாதானத்தையே உங்களுக்குக் கொடுக்கிறேன்; உலகம் கொடுக்கிறபிரகாரம் நான் உங்களுக்குக் கொடுக்கிறதில்லை.', textEn: 'Peace I leave with you; my peace I give you.' },
+      { id: '2', topic: 'trust', refTa: 'நீதிமொழிகள் 3:5', refEn: 'Proverbs 3:5', textTa: 'உன் சுயபுத்தியின்மேல் சாயாமல், உன் முழு இருதயத்தோடும் கர்த்தரில் நம்பிக்கையாயிருந்து; உன் வழிகளிலெல்லாம் அவரை நினைத்துக்கொள்.', textEn: 'Trust in the Lord with all your heart.' },
+      { id: '3', topic: 'courage', refTa: 'யோசுவா 1:9', refEn: 'Joshua 1:9', textTa: 'நான் உனக்குக் கட்டளையிடவில்லையா? பலங்கொண்டு திடமனதாயிரு; திகையாதே, கலங்காதே, நீ போகும் இடமெல்லாம் உன் தேவனாகிய கர்த்தர் உன்னோடே இருக்கிறார்.', textEn: 'Be strong and courageous; do not be afraid.' },
+      { id: '4', topic: 'hope', refTa: 'எரேமியா 29:11', refEn: 'Jeremiah 29:11', textTa: 'நீங்கள் எதிர்பார்த்திருக்கும் முடிவை உங்களுக்குக் கொடுக்கும்படிக்கு நான் உங்கள்பேரில் நினைத்திருக்கிற நினைவுகளை அறிவேன் என்று கர்த்தர் சொல்லுகிறார்.', textEn: 'For I know the plans I have for you.' },
+      { id: '5', topic: 'prayer', refTa: 'பிலிப்பியர் 4:6', refEn: 'Philippians 4:6', textTa: 'நீங்கள் ஒன்றுக்குங் கவலைப்படாமல், எல்லாவற்றையுங்குறித்து உங்கள் விண்ணப்பங்களை ஸ்தோத்திரத்தோடே கூடிய ஜெபத்தினாலும் வேண்டுதலினாலும் தேவனுக்குத் தெரியப்படுத்துங்கள்.', textEn: 'Do not be anxious about anything.' }
+    ];
+
+    let currentVerse = verses[0];
+    let currentLang = 'ta';
+    let favorites = JSON.parse(localStorage.getItem('android_bible_favs') || '[]');
+    let timerSecs = 180;
+    let timerInterval = null;
+    let timerRunning = false;
+    let isFramed = true;
+
+    // Clock update in Android status bar
+    setInterval(() => {
+      const d = new Date();
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      document.getElementById('status-time').textContent = `${h}:${m}`;
+    }, 1000);
+
+    function toggleDeviceFrame() {
+      isFramed = !isFramed;
+      const shell = document.getElementById('android-device-shell');
+      const btn = document.getElementById('btn-frame-toggle');
+      if (isFramed) {
+        shell.className = "w-full sm:max-w-[420px] sm:h-[880px] bg-slate-950 sm:shadow-android sm:rounded-[50px] sm:border-[10px] sm:border-slate-800 flex flex-col overflow-hidden relative transition-all duration-300";
+        btn.textContent = "📱 Switch to Full Screen View";
+      } else {
+        shell.className = "w-full max-w-xl h-screen sm:h-[90vh] bg-slate-950 sm:rounded-3xl border border-slate-800 flex flex-col overflow-hidden relative transition-all duration-300";
+        btn.textContent = "📲 Switch to Android Device Frame";
+      }
+    }
+
+    function renderVerse() {
+      document.getElementById('verse-topic-tag').textContent = currentVerse.refTa;
+      document.getElementById('verse-text').textContent = currentLang === 'ta' ? currentVerse.textTa : currentVerse.textEn;
+      document.getElementById('verse-trans').textContent = currentLang === 'ta' ? `"${currentVerse.textEn}"` : `"${currentVerse.textTa}"`;
+      document.getElementById('verse-ref').textContent = currentLang === 'ta' ? currentVerse.refTa : currentVerse.refEn;
+      
+      const isFav = favorites.some(f => f.id === currentVerse.id);
+      const favBtn = document.getElementById('fav-btn');
+      favBtn.innerHTML = isFav ? '<span class="text-rose-400">❤️ பிடித்தது</span>' : '<span>🤍 விருப்பம்</span>';
+    }
+
+    function setTopic(topic) {
+      document.querySelectorAll('.topic-chip').forEach(c => {
+        if (c.getAttribute('data-topic') === topic) {
+          c.className = 'topic-chip active px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0 shadow-sm';
+        } else {
+          c.className = 'topic-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700';
+        }
+      });
+      const filtered = topic === 'all' ? verses : verses.filter(v => v.topic === topic);
+      if (filtered.length > 0) {
+        currentVerse = filtered[Math.floor(Math.random() * filtered.length)];
+        renderVerse();
+      }
+    }
+
+    function getRandomVerse() {
+      currentVerse = verses[Math.floor(Math.random() * verses.length)];
+      renderVerse();
+      showToast('புதிய வசனம் ஏற்றப்பட்டது');
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'ta' ? 'en' : 'ta';
+      document.getElementById('btn-lang').textContent = currentLang === 'ta' ? 'தமிழ்/EN' : 'EN/தமிழ்';
+      renderVerse();
+    }
+
+    function copyVerse() {
+      const text = `${currentVerse.refTa}\n"${currentVerse.textTa}"\n- Android Tamil Bible App`;
+      navigator.clipboard.writeText(text);
+      showToast('வசனம் நகலெடுக்கப்பட்டது!');
+    }
+
+    function toggleFav() {
+      const idx = favorites.findIndex(f => f.id === currentVerse.id);
+      if (idx >= 0) {
+        favorites.splice(idx, 1);
+        showToast('பிடித்தவையிலிருந்து நீக்கப்பட்டது');
+      } else {
+        favorites.push(currentVerse);
+        showToast('பிடித்தவையில் சேர்க்கப்பட்டது ❤️');
+      }
+      localStorage.setItem('android_bible_favs', JSON.stringify(favorites));
+      updateFavBadge();
+      renderVerse();
+    }
+
+    function updateFavBadge() {
+      const badge = document.getElementById('fav-badge');
+      if (favorites.length > 0) {
+        badge.textContent = favorites.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openFavoritesModal() {
+      const modal = document.getElementById('favorites-modal');
+      const list = document.getElementById('favorites-list');
+      modal.classList.remove('hidden');
+
+      if (favorites.length === 0) {
+        list.innerHTML = '<p class="text-center text-xs text-slate-500 py-8">பிடித்த வசனங்கள் எதுவும் இல்லை.</p>';
+        return;
+      }
+
+      list.innerHTML = favorites.map(f => `
+        <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-indigo-400">${f.refTa}</span>
+            <button onclick="removeFav('${f.id}')" class="text-xs text-rose-400">நீக்கு</button>
+          </div>
+          <p class="tamil-quote text-xs text-slate-200">${f.textTa}</p>
+        </div>
+      `).join('');
+    }
+
+    function closeFavoritesModal() {
+      document.getElementById('favorites-modal').classList.add('hidden');
+    }
+
+    function removeFav(id) {
+      favorites = favorites.filter(f => f.id !== id);
+      localStorage.setItem('android_bible_favs', JSON.stringify(favorites));
+      updateFavBadge();
+      openFavoritesModal();
+      renderVerse();
+    }
+
+    // Timer functions
+    function startTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-toggle-btn').textContent = 'தொடங்கு (Start)';
+        return;
+      }
+      timerRunning = true;
+      document.getElementById('timer-toggle-btn').textContent = 'இடைநிறுத்து (Pause)';
+      testChime();
+
+      timerInterval = setInterval(() => {
+        if (timerSecs > 0) {
+          timerSecs--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('timer-toggle-btn').textContent = 'தொடங்கு (Start)';
+          testChime();
+          showToast('ஜெப நேரம் நிறைவுற்றது! ஆமென் 🙏');
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerRunning = false;
+      timerSecs = 180;
+      document.getElementById('timer-toggle-btn').textContent = 'தொடங்கு (Start)';
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSecs / 60);
+      const s = timerSecs % 60;
+      document.getElementById('timer-display').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const pct = (timerSecs / 180) * 100;
+      document.getElementById('timer-bar').style.width = `${pct}%`;
+    }
+
+    function testChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 2.0);
+      } catch (e) {}
+    }
+
+    function updateReminderTime(t) {
+      document.getElementById('reminder-status-label').textContent = `நினைவூட்டல்: ${t}`;
+      showToast(`நினைவூட்டல் நேரம் அமைக்கப்பட்டது: ${t}`);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Initial render
+    renderVerse();
+    updateFavBadge();
+  </script>
+</body>
+</html>

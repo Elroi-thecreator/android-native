@@ -1,0 +1,6 @@
+{
+  "name": "Daily Tamil Bible Verse & Prayer Reminder",
+  "description": "Daily Tamil Bible verses, offline mode, topic filters, prayer timer with chime, daily notification reminders, and PWA support.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
