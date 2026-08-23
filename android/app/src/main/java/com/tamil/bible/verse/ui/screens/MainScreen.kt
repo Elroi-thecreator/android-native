@@ -60,7 +60,17 @@ fun MainScreen() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Badge { Text(selectedVerse.topicTa) }
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = selectedVerse.topicTa,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                             Button(
                                 onClick = {
                                     val filtered = if (selectedTopic == "all") VerseRepository.verses else VerseRepository.verses.filter { it.topic == selectedTopic }
